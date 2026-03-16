@@ -1,4 +1,4 @@
-# 🌸 Aurora Flower Shop - Redis Demo
+# Aurora Flower Shop - Redis Demo
 
 Program sederhana menggunakan **Redis** dan **Python** untuk mensimulasikan sistem toko bunga berbasis penyimpanan data in-memory.
 
@@ -21,7 +21,7 @@ Program ini mensimulasikan sistem toko bunga yang memanfaatkan Redis sebagai pen
 
 ---
 
-## 🛠️ Teknologi yang Digunakan
+## Teknologi yang Digunakan
 
 | Teknologi | Keterangan               |
 |-----------|--------------------------|
@@ -31,7 +31,7 @@ Program ini mensimulasikan sistem toko bunga yang memanfaatkan Redis sebagai pen
 
 ---
 
-## 📂 Struktur Folder
+## Struktur Folder
 
 ```
 tugas-redis/
@@ -42,7 +42,7 @@ tugas-redis/
 
 ---
 
-## ⚙️ Cara Menjalankan
+## Cara Menjalankan
 
 **1. Install library Redis**
 ```bash
@@ -65,52 +65,10 @@ source venv/bin/activate
 python3 redis_app.py
 ```
 
----
-
-## 📤 Contoh Output
-
-```
-==================================================
-   🌸  AURORA FLOWER SHOP  🌸
-       Sistem Toko Bunga Sederhana
-==================================================
-
-📦 Katalog produk berhasil disimpan ke Redis.
-
-🌺 Daftar Bunga Tersedia:
-   No   Nama                 Harga           Stok
-   ------------------------------------------------
-   1    Mawar Merah          Rp   25,000   10 pcs
-   2    Tulip Pink           Rp   35,000   7 pcs
-   3    Bunga Matahari       Rp   20,000   15 pcs
-   4    Lavender             Rp   30,000   5 pcs
-
-👥 Pengunjung toko hari ini : 3 orang
-
-🧾 Riwayat Pesanan Terbaru:
-   1. Tulip Pink x2 - Rp 70.000
-   2. Mawar Merah x1 - Rp 25.000
-   3. Lavender x3 - Rp 90.000
-
-⚡ Flash Sale Aktif  : DISKON 20% Mawar Merah!
-   Berakhir dalam   : 15 detik
-
-👑 Pelanggan VIP (4 orang):
-   ✦ Aurora
-   ✦ Dewi
-   ✦ Rina
-   ✦ Siti
-
-🗑️  Data sementara berhasil dihapus dari Redis.
-
-==================================================
-   Program selesai. Sampai jumpa! 🌸
-==================================================
-```
 
 ---
 
-## 🧠 Perintah Redis yang Digunakan
+## Perintah Redis yang Digunakan
 
 | Perintah           | Fungsi dalam Program                        |
 |--------------------|---------------------------------------------|
@@ -123,7 +81,7 @@ python3 redis_app.py
 
 ---
 
-## 👩‍💻 Author
+## Author
 
 **Chantika Aurora Akmal**  
 NIM: 2311083001  
