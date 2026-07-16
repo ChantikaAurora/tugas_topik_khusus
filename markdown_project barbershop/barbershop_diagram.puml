@@ -1,0 +1,106 @@
+@startuml
+entity pelanggan {
+  *id_pelanggan : INT <<PK>>
+  --
+  nama : VARCHAR
+}
+
+entity alamat {
+  *id_alamat : INT <<PK>>
+}
+
+entity barber_staff {
+  *id_staff : INT <<PK>>
+}
+
+entity role_staff {
+  *id_role : INT <<PK>>
+}
+
+entity layanan_jasa {
+  *id_layanan : INT <<PK>>
+}
+
+entity inventory_produk {
+  *id_produk : INT <<PK>>
+}
+
+entity kategori_produk {
+  *id_kategori : INT <<PK>>
+}
+
+entity supplier_produk {
+  *id_supplier : INT <<PK>>
+}
+
+entity toko_cabang {
+  *id_cabang : INT <<PK>>
+}
+
+entity layanan_antar {
+  *id_antar : INT <<PK>>
+}
+
+entity metode_pembayaran {
+  *id_metode : INT <<PK>>
+}
+
+entity promo_diskon {
+  *id_promo : INT <<PK>>
+}
+
+entity reservasi_jadwal {
+  *id_reservasi : INT <<PK>>
+}
+
+entity status_layanan {
+  *id_status : INT <<PK>>
+}
+
+entity transaksi_pembayaran {
+  *id_transaksi : INT <<PK>>
+}
+
+entity detail_transaksi {
+  *id_detail : INT <<PK>>
+}
+
+entity penilaian_pelanggan {
+  *id_penilaian : INT <<PK>>
+}ß
+
+entity shift_staff {
+  *id_shift : INT <<PK>>
+}
+
+entity jadwal_kerja {
+  *id_jadwal : INT <<PK>>
+}
+
+pelanggan ||--o{ alamat : "berada di"
+pelanggan ||--o{ reservasi_jadwal : "membuat"
+reservasi_jadwal }o--|| barber_staff : "dilayani oleh"
+reservasi_jadwal }o--|| layanan_jasa : "mengandung"
+reservasi_jadwal }o--|| toko_cabang : "di"
+reservasi_jadwal }o--|| status_layanan : "memiliki"
+reservasi_jadwal }o--|| promo_diskon : "menggunakan"
+
+barber_staff }o--|| role_staff : "memiliki"
+barber_staff ||--o{ jadwal_kerja : "bekerja pada"
+jadwal_kerja }o--|| shift_staff : "dalam shift"
+jadwal_kerja }o--|| toko_cabang : "di cabang"
+
+transaksi_pembayaran }o--|| reservasi_jadwal : "untuk"
+transaksi_pembayaran }o--|| metode_pembayaran : "dengan metode"
+transaksi_pembayaran }o--|| layanan_antar : "menggunakan"
+
+detail_transaksi }o--|| transaksi_pembayaran : "bagian dari"
+detail_transaksi }o--|| inventory_produk : "terdiri dari"
+detail_transaksi }o--|| layanan_jasa : "atau jasa"
+
+inventory_produk }o--|| kategori_produk : "digolongkan"
+inventory_produk }o--|| supplier_produk : "dipasok oleh"
+
+supplier_produk }o--|| alamat : "berlokasi di"
+toko_cabang }o--|| alamat : "berlokasi di"
+@enduml
