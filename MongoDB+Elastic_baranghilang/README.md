@@ -1,8 +1,6 @@
 # Lost & Found Kampus
 
-Aplikasi pencarian dan pelaporan barang hilang/temuan di lingkungan kampus/kos, dengan pencarian fuzzy dan auto-matching antara laporan "hilang" dan "temuan".
-
-Proyek ini dibuat sebagai tugas UAS Topik Khusus, dengan fokus penerapan **MongoDB** (penyimpanan data fleksibel) dan **Elasticsearch** (fuzzy search & matching).
+Aplikasi pencarian dan pelaporan barang hilang/temuan di lingkungan kampus/kos, dengan pencarian fuzzy dan auto-matching antara laporan "hilang" dan "temuan". Dengan fokus penerapan **MongoDB** (penyimpanan data fleksibel) dan **Elasticsearch** (fuzzy search & matching).
 
 ---
 
@@ -117,11 +115,3 @@ flutter run
 | Auto-matching antara laporan hilang & temuan | Elasticsearch bisa scoring relevansi (deskripsi + kategori + lokasi) untuk menentukan seberapa mirip dua laporan |
 
 ---
-
-## Rencana Pengembangan Selanjutnya
-
-- [ ] Autentikasi user (saat ini `user_id` masih hardcode)
-- [ ] Upload & tampilkan foto laporan
-- [ ] Notifikasi push/WhatsApp otomatis saat ada match
-- [ ] Kalibrasi ulang threshold skor auto-matching berdasarkan data asli
-- [ ] Halaman riwayat laporan milik user
