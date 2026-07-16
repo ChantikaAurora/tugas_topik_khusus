@@ -1,6 +1,8 @@
+import os
 from elasticsearch import AsyncElasticsearch
 
-ES_URL = "http://localhost:9200"
+# Di Docker Compose di-override jadi "http://elasticsearch:9200" (nama service).
+ES_URL = os.getenv("ES_URL", "http://localhost:9200")
 INDEX_NAME = "reports"
 
 es = AsyncElasticsearch(ES_URL)
@@ -17,6 +19,8 @@ INDEX_MAPPING = {
             "status": {"type": "keyword"},        # "open" atau "matched"
             "created_at": {"type": "date"},
             "user_id": {"type": "keyword"},
+            "photo_url": {"type": "keyword"},     # tidak perlu full-text search, cuma disimpan & ditampilkan
+            "coordinates": {"type": "geo_point"},  # {"lat": ..., "lon": ...}, dipakai untuk filter jarak
         }
     }
 }
@@ -29,11 +33,27 @@ async def ensure_index_exists():
 
 
 async def index_report(report_id: str, report: dict):
-    await es.index(index=INDEX_NAME, id=report_id, document=report)
+    """Index satu laporan ke Elasticsearch. Kalau ada latitude & longitude,
+    otomatis dibentuk jadi field geo_point 'coordinates' untuk filter jarak."""
+    doc = dict(report)
+    lat = doc.get("latitude")
+    lon = doc.get("longitude")
+    if lat is not None and lon is not None:
+        doc["coordinates"] = {"lat": lat, "lon": lon}
+
+    await es.index(index=INDEX_NAME, id=report_id, document=doc)
 
 
-async def search_reports(query: str, report_type: str = None):
-    """Fuzzy search berdasarkan title, description, location"""
+async def search_reports(
+    query: str,
+    report_type: str = None,
+    lat: float = None,
+    lon: float = None,
+    radius_km: float = None,
+):
+    """Fuzzy search berdasarkan title, description, location.
+    Kalau lat/lon/radius_km diisi, hasil difilter berdasarkan jarak dan
+    diurutkan dari yang paling dekat."""
     must_clauses = [
         {
             "multi_match": {
@@ -46,12 +66,42 @@ async def search_reports(query: str, report_type: str = None):
     if report_type:
         must_clauses.append({"term": {"report_type": report_type}})
 
+    filter_clauses = []
+    sort_clauses = ["_score"]
+    if lat is not None and lon is not None and radius_km is not None:
+        filter_clauses.append(
+            {
+                "geo_distance": {
+                    "distance": f"{radius_km}km",
+                    "coordinates": {"lat": lat, "lon": lon},
+                }
+            }
+        )
+        sort_clauses = [
+            {
+                "_geo_distance": {
+                    "coordinates": {"lat": lat, "lon": lon},
+                    "order": "asc",
+                    "unit": "km",
+                }
+            },
+            "_score",
+        ]
+
     result = await es.search(
         index=INDEX_NAME,
-        query={"bool": {"must": must_clauses}},
+        query={"bool": {"must": must_clauses, "filter": filter_clauses}},
+        sort=sort_clauses,
         size=20,
     )
-    return [hit["_source"] | {"_id": hit["_id"], "_score": hit["_score"]} for hit in result["hits"]["hits"]]
+    hits = []
+    for hit in result["hits"]["hits"]:
+        item = hit["_source"] | {"_id": hit["_id"], "_score": hit["_score"]}
+        # sort key kedua (kalau ada geo sort) berisi jarak dalam km
+        if lat is not None and lon is not None and radius_km is not None and hit.get("sort"):
+            item["distance_km"] = round(hit["sort"][0], 2)
+        hits.append(item)
+    return hits
 
 
 async def find_matching_reports(report: dict):

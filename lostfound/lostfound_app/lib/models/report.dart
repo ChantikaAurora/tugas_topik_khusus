@@ -5,8 +5,10 @@ class Report {
   final String category;
   final String location;
   final String reportType; // "hilang" atau "temuan"
-  final String userId;
+  final String? userId; // diisi backend dari token JWT, bukan dari client
   final String? photoUrl;
+  final double? latitude;
+  final double? longitude;
 
   Report({
     this.id,
@@ -15,8 +17,10 @@ class Report {
     required this.category,
     required this.location,
     required this.reportType,
-    required this.userId,
+    this.userId,
     this.photoUrl,
+    this.latitude,
+    this.longitude,
   });
 
   Map<String, dynamic> toJson() => {
@@ -25,8 +29,9 @@ class Report {
         'category': category,
         'location': location,
         'report_type': reportType,
-        'user_id': userId,
         'photo_url': photoUrl,
+        'latitude': latitude,
+        'longitude': longitude,
       };
 
   factory Report.fromJson(Map<String, dynamic> json) => Report(
@@ -38,5 +43,7 @@ class Report {
         reportType: json['report_type'] ?? '',
         userId: json['user_id'] ?? '',
         photoUrl: json['photo_url'],
+        latitude: (json['latitude'] as num?)?.toDouble(),
+        longitude: (json['longitude'] as num?)?.toDouble(),
       );
 }

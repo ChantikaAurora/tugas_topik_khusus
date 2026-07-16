@@ -1,7 +1,9 @@
 import json
+import os
 import redis.asyncio as redis
 
-REDIS_URL = "redis://localhost:6379"
+# Di Docker Compose di-override jadi "redis://redis:6379" (nama service).
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 STREAM_REPORT_CREATED = "report_created"
 STREAM_MATCH_FOUND = "match_found"

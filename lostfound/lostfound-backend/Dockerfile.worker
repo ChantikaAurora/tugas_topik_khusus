@@ -1,0 +1,13 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app ./app
+COPY worker.py .
+
+# Tidak ada EXPOSE karena worker ini bukan web server,
+# cuma proses consumer yang jalan terus (long-running process)
+CMD ["python", "worker.py"]

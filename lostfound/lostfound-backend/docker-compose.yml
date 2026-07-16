@@ -29,6 +29,55 @@ services:
     volumes:
       - redis-data:/data
 
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: lostfound-api
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - ES_URL=http://elasticsearch:9200
+      - REDIS_URL=redis://redis:6379
+      # PENTING: ganti secret ini untuk production, jangan pakai nilai contoh ini
+      - JWT_SECRET_KEY=ganti-dengan-secret-key-yang-panjang-dan-acak
+    depends_on:
+      - mongodb
+      - elasticsearch
+      - redis
+
+  search-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: lostfound-search-worker
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - ES_URL=http://elasticsearch:9200
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - elasticsearch
+      - redis
+
+  notification-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.notification
+    container_name: lostfound-notification-worker
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - REDIS_URL=redis://redis:6379
+      - FIREBASE_CREDENTIALS_PATH=/app/firebase-service-account.json
+    volumes:
+      # Taruh file kredensial Firebase kamu di folder ini sebelum docker compose up.
+      # Lihat komentar di app/firebase_client.py untuk cara mendapatkannya.
+      - ./firebase-service-account.json:/app/firebase-service-account.json:ro
+    depends_on:
+      - redis
+      - mongodb
+
 volumes:
   mongo-data:
   es-data:

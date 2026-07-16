@@ -1,37 +1,51 @@
 """
 Notification Service (Worker)
 -----------------------------
-Proses terpisah yang mengonsumsi event `match_found` dan mengirim notifikasi
-ke kedua user yang laporannya cocok.
-
-Untuk sekarang, "pengiriman notifikasi" masih berupa print ke console (stub).
-Nanti tinggal ganti fungsi send_notification() dengan integrasi WhatsApp Business
-API atau push notification (Firebase Cloud Messaging) sesuai rencana di dokumen.
+Proses terpisah yang mengonsumsi event `match_found` dan mengirim push
+notification (Firebase Cloud Messaging) ke kedua user yang laporannya cocok.
 
 Jalankan terpisah:
     python3.10 notification_worker.py
 """
 
 import asyncio
+from bson import ObjectId
+from bson.errors import InvalidId
 
 from app.queue_client import consume_events, ack_event, STREAM_MATCH_FOUND
+from app.database import users_collection
+from app.firebase_client import send_push_notification
 
 
-async def send_notification(user_id: str, message: str):
-    # TODO: ganti dengan WhatsApp Business API / Firebase Cloud Messaging
-    print(f"[Notification Service] -> Kirim ke user '{user_id}': {message}")
+async def send_notification(user_id: str, title: str, body: str):
+    try:
+        user = await users_collection.find_one({"_id": ObjectId(user_id)})
+    except InvalidId:
+        print(f"[Notification Service] user_id tidak valid: {user_id}")
+        return
+
+    if not user:
+        print(f"[Notification Service] User {user_id} tidak ditemukan, notifikasi dilewati")
+        return
+
+    device_token = user.get("device_token")
+    if not device_token:
+        # User belum pernah login di HP / belum kasih izin notifikasi
+        print(f"[Notification Service] User {user_id} belum punya device_token, notifikasi dilewati")
+        return
+
+    sent = send_push_notification(device_token, title, body)
+    status_text = "berhasil dikirim" if sent else "gagal dikirim"
+    print(f"[Notification Service] Push ke user '{user_id}' {status_text}: {body}")
 
 
 async def process_match_found(payload: dict):
     score = payload["score"]
-    await send_notification(
-        payload["report_user_id"],
-        f"Laporanmu kemungkinan cocok dengan laporan lain (skor kecocokan: {score:.2f})",
-    )
-    await send_notification(
-        payload["matched_user_id"],
-        f"Laporanmu kemungkinan cocok dengan laporan lain (skor kecocokan: {score:.2f})",
-    )
+    title = "Kemungkinan Barangmu Ditemukan!"
+    body = f"Ada laporan lain yang mirip dengan laporanmu (skor kecocokan: {score:.2f})"
+
+    await send_notification(payload["report_user_id"], title, body)
+    await send_notification(payload["matched_user_id"], title, body)
 
 
 async def main():
